@@ -1,0 +1,29 @@
+{
+  "name": "teamcity",
+  "description": "Provides integration with teamcity for getting bits from teamcity",
+  "long_description": "Description\n===========\nProvides a collection of tools for downloading build artifacts from a teamcity server\n\nRequirement\n===========\n\nPlatform\n--------\n\n* Any supported by chef\n\nLibrary Methods\n===============\n\nTeamcity::Utility\n-----------------\nA collection of utilities for dealing with teamcity\n\n### Methods\n- get_latest_build(build_type): Gets the latest successful build for the specified build type.\n\n### Examples\n    tc = Teamcity::Utility.new(:server=>node.teamcity.server, :port => 80, :username => node.teamcity.username, :password => node.teamcity.password)\n    build_version = tc.get_latest_build('bt3')\n\n    #Download a whole build\n    teamcity_build \"Download Build\" do\n      build_type \"bt4\"\n      version build_version\n      destination \"C:\\\\Temp\\\\#{build_version}\\\\Build.zip\"\n      overwrite true\n      action :download\n    end\n\n\n\nResources/Providers\n===================\n\nteamcity_build\n---------------\nDownload all artifacts from a teamcity build\n\n### Actions\n- :download: Downloads teamcity artifacts\n\n### Attribute Parameters\n* Indicates a default value is set\n\n- :build_type: The team city identifier for the build. Example 'bt1'\n- :version: The numeric build to download. Example '1.2.3.444'\n- :overwrite: Overwrite the file if it already exists\n- :destination: Where to download the file to.\n- :connection: Connection information for the teamcity server\n    - :server=>'ServerName',:port => 80, :username => 'YourUsername', :password => 'Password'\n\n### Node Attributes\n- node['teamcity']: Teamcity related data\n- node['teamcity']['server']: The default name of the teamcity server\n- node['teamcity']['port']: The port that teamcity operates on\n- node['teamcity']['username']: The default username to login with\n- node['teamcity']['password']: The default password to login with\n\n\n### Examples\n    #Download a whole build\n    teamcity_build \"Download Build\" do\n      build_type \"bt4\"\n      version \"1.2.3.4\"\n      destination \"C:\\\\Temp\\\\1.2.3.4\\\\Build.zip\"\n      overwrite true\n      action :download\n    end\n\nteamcity_files\n---------------\nDownload a specific list of files from the artifacts of a teamcity build\n\n### Actions\n- :download: Downloads teamcity artifacts\n\n### Attribute Parameters\n\n- :build_type: The team city identifier for the build. Example 'bt1'\n- :version: The numeric build to download. Example '1.2.3.444'\n- :overwrite: Overwrite the file if it already exists\n- :destination: Where to download the file to.\n- :files: An array of relative paths to files that should be downloaded\n    - Example: ['deploy/release.zip','deploy/debug.zip']\n- :connection: Connection information for the teamcity server\n    - :server=>'ServerName',:port => 80, :username => 'YourUsername', :password => 'Password'\n\n### Node Attributes\n- node['teamcity']: Teamcity related data\n- node['teamcity']['server']: The default name of the teamcity server\n- node['teamcity']['port']: The port that teamcity operates on\n- node['teamcity']['username']: The default username to login with\n- node['teamcity']['password']: The default password to login with\n\n\n### Examples\n    #Download some files from a build\n    teamcity_files \"Download Build\" do\n      build_type \"bt3\"\n      version \"1.2.3.4\"\n      files [\"deploy/Release.zip\",\"deploy/Debug.zip\"]\n      destination \"C:\\\\Temp\\\\1.2.3.4\"\n      overwrite true\n      action :download\n    end\n\n\n\n",
+  "maintainer": "Paul Morton",
+  "maintainer_email": "larder-project@gmail.com",
+  "license": "Apache License, Version 2.0",
+  "platforms": {
+  },
+  "dependencies": {
+  },
+  "recommendations": {
+  },
+  "suggestions": {
+  },
+  "conflicting": {
+  },
+  "providing": {
+  },
+  "replacing": {
+  },
+  "attributes": {
+  },
+  "groupings": {
+  },
+  "recipes": {
+  },
+  "version": "0.1.0"
+}
