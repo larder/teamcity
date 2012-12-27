@@ -22,4 +22,5 @@ include Teamcity::Helper
 action :download do
   initialize_connection(@new_resource.connection)
   download_all(@new_resource.destination)
+  @new_resource.updated_by_last_action(true)
 end
