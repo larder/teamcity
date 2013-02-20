@@ -46,7 +46,7 @@ node['teamcity']['agents'].each do |name, agent| # multiple agents
 
   directory agent['base'] do
     user agent['user']
-    group user agent['group']
+    group agent['group']
     recursive true
 
     action :create
@@ -71,6 +71,7 @@ node['teamcity']['agents'].each do |name, agent| # multiple agents
   # is there a better approach?
   execute "unzip #{install_file} -d #{agent[:base]}" do
     user agent[:user]
+    group agent['group']
     creates "#{agent['base']}/bin"
     not_if &installed_check
   end
@@ -112,7 +113,9 @@ node['teamcity']['agents'].each do |name, agent| # multiple agents
   # buildAgent.properties (TeamCity will restart if this file is changed)
   template agent_config do
     source "buildAgent.properties.erb"
-    variables node['teamcity']['agents'][name]
+    user agent['user']
+    user agent['group']
     mode 0644
+    variables node['teamcity']['agents'][name]
   end
 end
