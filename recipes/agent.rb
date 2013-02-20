@@ -53,8 +53,9 @@ node['teamcity']['agents'].each do |name, agent| # multiple agents
   installed_check = Proc.new { ::File.exists? "#{agent['base']}/bin" }
 
   remote_file install_file do
-    source(agent['server_url'] + '/update/buildAgent.zip')
+    source agent['server_url'] + '/update/buildAgent.zip'
     mode 0555
+    action :create_if_missing
     not_if &installed_check
   end
 
@@ -67,7 +68,7 @@ node['teamcity']['agents'].each do |name, agent| # multiple agents
   execute "unzip #{install_file} -d #{agent[:base]}" do
     user agent[:user]
     creates "#{agent['base']}/bin"
-    not_if { installed_check.call or ::File.exists? install_file }
+    not_if &installed_check
   end
 
   file install_file do
