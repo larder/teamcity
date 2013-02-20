@@ -43,6 +43,8 @@ The following attributes are supported for every agent (`node['teamcity']['agent
 - `system_properties` (`{}): Support for overwrite system properties, `system.` prefix is added by chef.
 - `env_properties` (`{}): Support for overwrite env properties, `env.` prefix is added by chef.
 
+To delete/remove a configured agent (e.g. the default agent) replace the hash with `nil`: `node['teamcity']['agent'][agentname] = nil`
+
 Recipes
 =======
 
