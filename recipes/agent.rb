@@ -82,6 +82,28 @@ node['teamcity']['agents'].each do |name, agent| # multiple agents
     end
   end
 
+  # try to extract agent name + authenticationCode from file
+  agent_config = ::File.join agent['base'], 'conf', 'buildAgent.properties'
+  if (agent['name'].nil? || agent['authorization_token'].nil?) && ::File.readable?(agent_config)
+    settings = File.new(agent_config).readlines.map do |s|
+      s.index("#") ? s.slice(0, s.index("#")).strip : s.strip  # remove comments
+    end.reject do |s|
+     s.index("=").nil? # remove lines without =
+    end.inject({}) do |memento,line| # split on = and convert to hash
+      key, value = line.split '='
+      memento[key] = value
+      memento
+    end
+    if agent['name'].nil? && !settings['name'].nil?
+      Chef::Log.info "Setting agent (#{name})'s name to #{settings['name']}"
+      node.set['teamcity']['agents'][name]['name'] = settings['name']
+    end
+    if agent['authorization_token'].nil? && !settings['authorizationToken'].nil?
+      Chef::Log.info "Setting agent (#{name})'s authorization_token"
+      node.set['teamcity']['agents'][name]['authorization_token'] = settings['authorizationToken']
+    end
+  end
+
   # buildAgent.properties (TeamCity will restart if this file is changed)
   template agent_config do
     source "buildAgent.properties.erb"
