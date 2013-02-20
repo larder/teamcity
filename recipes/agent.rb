@@ -25,7 +25,7 @@ node['teamcity']['agents'].each do |name, agent| # multiple agents
     end
   end
 
-  unless agent['server_url'] && agent['server_url'].present?
+  unless agent['server_url'] && !agent['server_url'].empty?
     message = "You need to setup the server url for agent #{name}"
     Chef::Log.fatal message
     raise message
