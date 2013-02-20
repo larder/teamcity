@@ -15,6 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+require 'digest/md5'
 
 node['teamcity']['agents'].each do |name, agent| # multiple agents
   next if agent.nil? # support removing of agents
@@ -53,7 +54,7 @@ node['teamcity']['agents'].each do |name, agent| # multiple agents
     not_if { File.exists? agent['base'] }
   end
 
-  install_file = "#{Chef::Config[:file_cache_path]}/teamcity-agent-#{name}.zip"
+  install_file = "#{Chef::Config[:file_cache_path]}/teamcity-agent-#{Digest::MD5.hexdigest(agent['server_url'])}.zip"
   installed_check = Proc.new { ::File.exists? "#{agent['base']}/bin" }
 
   remote_file install_file do
@@ -74,11 +75,6 @@ node['teamcity']['agents'].each do |name, agent| # multiple agents
     group agent['group']
     creates "#{agent['base']}/bin"
     not_if &installed_check
-  end
-
-  file install_file do
-    action :delete
-    only_if &installed_check
   end
 
   # as of TeamCity 6.5.4 the zip does NOT contain the file mode
