@@ -37,7 +37,7 @@ node['teamcity']['agents'].each do |name, agent| # multiple agents
 
   # Create the user
   user agent['user'] do
-    comment 'Team City Agent' + agent_label.call(': ')
+    comment 'TeamCity Agent' + agent_label.call(' ')
     gid agent['group']
     home agent['home']
   end
