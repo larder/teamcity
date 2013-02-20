@@ -1,6 +1,8 @@
 Description
 ===========
-Provides a collection of tools for downloading build artifacts from a teamcity server
+Provides:
+- a collection of tools for downloading build artifacts from a teamcity server
+- a recipe for installing and configuring a teamcity agents
 
 Requirement
 ===========
@@ -9,6 +11,50 @@ Platform
 --------
 
 * Any supported by chef
+
+
+Attributes
+==========
+
+Agent
+-----
+
+The agent recipe supports setup for multiple agent per host. Per agent am entry in `node['teamcity']['agents']` handles all options for this agent. The key is a chef internal name for the agent and does not have to be the name for the agent in teamcity.
+
+Per default a default agent is configured. If you want to setup more agents, create additional entries and ensure that the paths do not interact. Read also [the official documentation](http://confluence.jetbrains.com/display/TCD7/Setting+up+and+Running+Additional+Build+Agents#SettingupandRunningAdditionalBuildAgents-InstallingSeveralBuildAgentsontheSameMachine) for more information and limitations.
+
+The following attributes are supported for every agent (`node['teamcity']['agents'][agentname]`):
+
+- `server_url`: The address of the TeamCity server. The same as is used to open TeamCity web interface in the browser. **This option has to be configured.**
+- `name` (`nil`): The unique name of the agent used to identify this agent on the TeamCity server. Set to `nil` to let server generate it. By default, this name would be created from the build agent's host name
+- `user` (`teamcity`): Username for teamcity agent
+- `group` (`teamcity`): Username for teamcity agent
+- `home` (`/home/$user`): Home directory for teamcity agent
+- `base` (`$home`): Base directory for all teamcity data
+
+- `system_dir` (`$base`): Container directory for agent system files
+- `work_dir` (`$base/work`): Container directory to create default checkout directories for the build configurations.
+- `temp_dir` (`$base/tmp`): Container directory for the temporary directories. *Please note that the directory may be cleaned between the builds.*
+
+- `own_address` (`nil`): The IP address which will be used by TeamCity server to connect to the build agent. If `nil`, it is detected by build agent automatically, but if the machine has several network interfaces, automatic detection may fail.
+- `own_port` (`9090`): A port that TeamCity server will use to connect to the agent. Please make sure that incoming connections for this port are allowed on the agent computer (e.g. not blocked by a firewall)
+- `authorization_token` (`nil`): A token which is used to identify this agent on the TeamCity server. It is automatically generated and saved on the first agent connection to the server.
+
+- `system_properties` (`{}): Support for overwrite system properties, `system.` prefix is added by chef.
+- `env_properties` (`{}): Support for overwrite env properties, `env.` prefix is added by chef.
+
+Recipes
+=======
+
+Agent
+-----
+
+This recipe installs and configures an agent pro a teamcity server.
+
+Multiple agents per host are supported, but you need to set the attributes (expesially the paths) carefully to avoid problems between the different agents.
+
+The recipe creates a user for teamcity. Afterwards it downloads the agent source code from the teamcity server and installs it inside the user home directory (per default, can be changed via attributes).
+
 
 Library Methods
 ===============
