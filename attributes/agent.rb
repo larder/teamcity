@@ -18,8 +18,6 @@
 
 agent = default['teamcity']['agents']['default']
 
-agent['default'] = true # default user, service ...
-
 agent['server_url'] = nil
 agent['name'] = nil # generate name by teamcity
 

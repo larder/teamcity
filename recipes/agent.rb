@@ -17,11 +17,14 @@
 #
 require 'digest/md5'
 
+agent_count = node['teamcity']['agents'].reject { |n, agent| agent.nil? }.size
+
+
 node['teamcity']['agents'].each do |name, agent| # multiple agents
   next if agent.nil? # support removing of agents
 
   agent_label = Proc.new do |seperator|
-    if agent['default'] == true
+    if agent_count < 2
       ''
     else
       seperator + name
