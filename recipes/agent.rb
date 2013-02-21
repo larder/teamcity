@@ -83,6 +83,11 @@ node['teamcity']['agents'].each do |name, agent| # multiple agents
       mode 0755
     end
   end
+  %w{agent findJava install}.each do |script|
+    file ::File.join( agent['base'], 'bin', "#{script}.sh") do
+      mode 0755
+    end
+  end
 
   # try to extract agent name + authenticationCode from file
   agent_config = ::File.join agent['base'], 'conf', 'buildAgent.properties'
@@ -113,5 +118,17 @@ node['teamcity']['agents'].each do |name, agent| # multiple agents
     user agent['group']
     mode 0644
     variables node['teamcity']['agents'][name]
+  end
+
+  # create init.d script
+  service_name = 'teamcity-agent' + agent_label.call('-')
+  template '/etc/init.d/' + service_name do
+    source "agent.initd.erb"
+    mode 0755
+    variables node['teamcity']['agents'][name]
+  end
+  service service_name do
+    action [ :enable, :start ]
+    supports :status => true
   end
 end

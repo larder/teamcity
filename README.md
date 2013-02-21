@@ -12,6 +12,11 @@ Platform
 
 * Any supported by chef
 
+Cookbooks
+---------
+
+The agent needs the JAVA JDK. We recommend the opscode java cookbook to install it. But the cookbook assumes only that the openjdk is setup correctly.
+
 
 Attributes
 ==========
@@ -44,6 +49,8 @@ The following attributes are supported for every agent (`node['teamcity']['agent
 - `env_properties` (`{}): Support for overwrite env properties, `env.` prefix is added by chef.
 
 To delete/remove a configured agent (e.g. the default agent) replace the hash with `nil`: `node['teamcity']['agent'][agentname] = nil`
+
+This cookbooks requires that a Java JDK 6 is installed, configured and can be found per script. You can use the java cookbook to do this.
 
 Recipes
 =======

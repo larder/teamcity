@@ -1,0 +1,17 @@
+#!/bin/sh
+## THIS FILE IS MANAGED BY CHEF. ALL CHANGES WILL BE OVERWRITTEN!
+
+case "$1" in
+    start|"")
+    su -l <%= @user %> -c "<%= @system_dir %>/bin/agent.sh start"
+    ;;
+    stop)
+    su -l <%= @user %> -c "<%= @system_dir %>/bin/agent.sh stop"
+    ;;
+    status)
+    fuser <%= @system_dir %>/launcher/lib/launcher.jar
+    ;;
+    *)
+    echo "Usage: $0 start|stop|status"
+    exit 3
+esac
