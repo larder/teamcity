@@ -2,7 +2,7 @@ Description
 ===========
 Provides:
 - a collection of tools for downloading build artifacts from a teamcity server
-- a recipe for installing and configuring a teamcity agents
+- a recipe for installing and configuring (multiple) teamcity agents
 
 Requirement
 ===========
@@ -15,7 +15,7 @@ Platform
 Cookbooks
 ---------
 
-The agent needs the JAVA JDK. We recommend the opscode java cookbook to install it. But the cookbook assumes only that the openjdk is setup correctly.
+The agent needs the Java JDK (JDK 6 or later for TeamCity 7.0). We recommend the [opscode java cookbook](http://community.opscode.com/cookbooks/java) to install it. But the cookbook assumes only that the OpenJDK is setup correctly.
 
 
 Attributes
@@ -24,7 +24,7 @@ Attributes
 Agent
 -----
 
-The agent recipe supports setup for multiple agent per host. Per agent am entry in `node['teamcity']['agents']` handles all options for this agent. The key is a chef internal name for the agent and does not have to be the name for the agent in teamcity. It is only used if you have multiple agents, to distinguish the agents (primary as suffix for the teamcity-agent service).
+The agent recipe supports setup for multiple agent per host. Per agent an entry in `node['teamcity']['agents']` handles all options for this agent. The key is a chef internal name for the agent and does not have to be the name for the agent in teamcity. It is only used if you have multiple agents, to distinguish the agents (primary as suffix for the teamcity-agent service).
 
 Per default a default agent is configured. If you want to setup more agents, create additional entries and ensure that the paths do not interact. Read also [the official documentation](http://confluence.jetbrains.com/display/TCD7/Setting+up+and+Running+Additional+Build+Agents#SettingupandRunningAdditionalBuildAgents-InstallingSeveralBuildAgentsontheSameMachine) for more information and limitations.
 
@@ -59,7 +59,7 @@ Recipes
 Agent
 -----
 
-This recipe installs and configures an agent pro a teamcity server.
+This recipe installs and configures an agent per teamcity server.
 
 Multiple agents per host are supported, but you need to set the attributes (expesially the paths) carefully to avoid problems between the different agents.
 
@@ -118,7 +118,6 @@ Download all artifacts from a teamcity build
 - node['teamcity']['username']: The default username to login with
 - node['teamcity']['password']: The default password to login with
 
-
 ### Examples
     #Download a whole build
     teamcity_build "Download Build" do
@@ -154,7 +153,6 @@ Download a specific list of files from the artifacts of a teamcity build
 - node['teamcity']['username']: The default username to login with
 - node['teamcity']['password']: The default password to login with
 
-
 ### Examples
     #Download some files from a build
     teamcity_files "Download Build" do
@@ -165,6 +163,3 @@ Download a specific list of files from the artifacts of a teamcity build
       overwrite true
       action :download
     end
-
-
-
