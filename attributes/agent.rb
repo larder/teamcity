@@ -16,24 +16,6 @@
 # limitations under the License.
 #
 
-agent = default['teamcity']['agents']['default']
+node.default['teamcity']['agents']['default'] = {}
 
-agent['server_url'] = nil
-agent['name'] = nil # generate name by teamcity
-
-agent['user'] = 'teamcity'
-agent['group'] = 'teamcity'
-
-agent['home'] = "/home/" + default['teamcity']['agents']['default']['user']
-agent['base'] = default['teamcity']['agents']['default']['home']
-
-agent['system_dir'] = default['teamcity']['agents']['default']['base']
-agent['work_dir'] = "#{default['teamcity']['agents']['default']['base']}/work"
-agent['temp_dir'] = "#{default['teamcity']['agents']['default']['base']}/tmp"
-
-agent['own_address'] = nil
-agent['own_port'] = 9090
-agent['authorization_token'] = nil
-
-agent['system_properties'] = {}
-agent['env_properties'] = {}
+Teamcity::Agent.new('default', node).set_defaults
