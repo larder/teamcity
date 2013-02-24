@@ -54,11 +54,11 @@ authorizationToken=<%= @authorization_token %>
 ## More on file structure: http://java.sun.com/j2se/1.5.0/docs/api/java/util/Properties.html#load(java.io.InputStream)
 
 # Build Script Properties
-<%- @system_properties.sort.each do |key,value| %>
+<%- @system_properties.to_hash.sort.each do |key,value| %>
 system.<%= key %>=<%= value %>
 <%- end %>
 
 # Environment Variables
-<%- @env_properties.sort.each do |key,value| %>
+<%- @env_properties.to_hash.sort.each do |key,value| %>
 env.<%= key %>=<%= value %>
 <%- end %>
