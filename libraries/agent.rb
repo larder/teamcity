@@ -75,7 +75,7 @@ module Teamcity
     end
 
     def self.agent_count(node)
-      @agent_count ||= node['teamcity']['agents'].reject { |n, agent| agent.nil? }.size
+      @agent_count ||= node['teamcity']['agents'].to_hash.reject { |n, agent| agent.nil? }.size
     end
 
     def label(seperator)
