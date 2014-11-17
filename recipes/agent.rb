@@ -30,9 +30,9 @@ node.teamcity.agents.each do |name, agent| # multiple agents
   end
 
   if platform?("windows")
-    directory agent['base'] do
+    directory agent.system_dir do
       action :create
-      not_if { File.exists? agent['base'] }
+      not_if { File.exists? agent.system_dir }
     end
   else
     # Create the users' group
@@ -152,6 +152,7 @@ node.teamcity.agents.each do |name, agent| # multiple agents
       mode 0755
       variables agent.to_hash
     end
+    
     service service_name do
       action [ :enable, :start ]
       supports :status => true
