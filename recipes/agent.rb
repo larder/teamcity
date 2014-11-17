@@ -29,24 +29,31 @@ node.teamcity.agents.each do |name, agent| # multiple agents
     raise message
   end
 
-  # Create the users' group
-  group agent.group do
-  end
-
-  # Create the user
-  user agent.user do
-    comment 'TeamCity Agent' + agent.label(' ')
-    gid agent.group
-    home agent.home
-  end
-
-  directory agent.system_dir do
-    user agent.user
-    group agent.group
-    recursive true
-
-    action :create
-    not_if { File.exists? agent.system_dir }
+  if platform?("windows")
+    directory agent['base'] do
+      action :create
+      not_if { File.exists? agent['base'] }
+    end
+  else
+    # Create the users' group
+    group agent.group do
+    end
+  
+    # Create the user
+    user agent.user do
+      comment 'TeamCity Agent' + agent.label(' ')
+      gid agent.group
+      home agent.home
+    end
+  
+    directory agent.system_dir do
+      user agent.user
+      group agent.group
+      recursive true
+  
+      action :create
+      not_if { File.exists? agent.system_dir }
+    end
   end
 
   install_file = "#{Chef::Config[:file_cache_path]}/teamcity-agent-#{Digest::MD5.hexdigest(agent.server_url)}.zip"
@@ -58,29 +65,36 @@ node.teamcity.agents.each do |name, agent| # multiple agents
     action :create_if_missing
     not_if &installed_check
   end
-
-  package 'unzip' do
-    action :install
-    not_if &installed_check
-  end
-
-  # is there a better approach?
-  execute "unzip #{install_file} -d #{agent.system_dir}" do
-    user agent.user
-    group agent.group
-    creates "#{agent.system_dir}/bin"
-    not_if &installed_check
-  end
-
-  # as of TeamCity 6.5.4 the zip does NOT contain the file mode
-  %w{linux-x86-32 linux-x86-64 linux-ppc-64 }.each do |platform|
-    file ::File.join( agent.system_dir, 'launcher/bin/TeamCityAgentService-' + platform) do
-      mode 0755
+  if platform?("windows")
+    windows_zipfile agent.system_dir do
+      source install_file
+      action :unzip
+      not_if &installed_check
     end
-  end
-  %w{agent findJava install}.each do |script|
-    file ::File.join( agent.system_dir, 'bin', "#{script}.sh") do
-      mode 0755
+  else
+    package 'unzip' do
+      action :install
+      not_if &installed_check
+    end
+  
+    # is there a better approach?
+    execute "unzip #{install_file} -d #{agent.system_dir}" do
+      user agent.user
+      group agent.group
+      creates "#{agent.system_dir}/bin"
+      not_if &installed_check
+    end
+  
+    # as of TeamCity 6.5.4 the zip does NOT contain the file mode
+    %w{linux-x86-32 linux-x86-64 linux-ppc-64 }.each do |platform|
+      file ::File.join( agent.system_dir, 'launcher/bin/TeamCityAgentService-' + platform) do
+        mode 0755
+      end
+    end
+    %w{agent findJava install}.each do |script|
+      file ::File.join( agent.system_dir, 'bin', "#{script}.sh") do
+        mode 0755
+      end
     end
   end
 
@@ -106,24 +120,41 @@ node.teamcity.agents.each do |name, agent| # multiple agents
     end
   end
 
-  # buildAgent.properties (TeamCity will restart if this file is changed)
-  template agent_config do
-    source "buildAgent.properties.erb"
-    user agent.user
-    user agent.group
-    mode 0644
-    variables agent.to_hash
-  end
+  if platform?("windows")
+    # buildAgent.properties (TeamCity will restart if this file is changed)
+    template agent_config do
+      source "buildAgent.properties.erb"
+      variables agent.to_hash
+    end
 
-  # create init.d script
-  service_name = 'teamcity-agent' + agent.label('-')
-  template '/etc/init.d/' + service_name do
-    source "agent.initd.erb"
-    mode 0755
-    variables agent.to_hash
-  end
-  service service_name do
-    action [ :enable, :start ]
-    supports :status => true
+    execute 'install teamcity service' do
+      command "#{agent.system_dir}/bin/service.install.bat"
+      action :run
+      cwd "#{agent.system_dir}/bin"
+      not_if { ::Win32::Service.exists?("TCBuildAgent") }
+    end
+
+    service_name = 'TCBuildAgent'
+  else
+    # buildAgent.properties (TeamCity will restart if this file is changed)
+    template agent_config do
+      source "buildAgent.properties.erb"
+      user agent.user
+      user agent.group
+      mode 0644
+      variables agent.to_hash
+    end
+  
+    # create init.d script
+    service_name = 'teamcity-agent' + agent.label('-')
+    template '/etc/init.d/' + service_name do
+      source "agent.initd.erb"
+      mode 0755
+      variables agent.to_hash
+    end
+    service service_name do
+      action [ :enable, :start ]
+      supports :status => true
+    end
   end
 end
